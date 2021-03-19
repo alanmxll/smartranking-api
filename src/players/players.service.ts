@@ -17,35 +17,31 @@ export class PlayersService {
   async createPlayer(createPlayerDto: CreatePlayerDto): Promise<void> {
     const { email } = createPlayerDto;
 
-    const alreadyExists = await this.players.find(
-      (player) => player.email === email,
-    );
+    const alreadyExists = this.players.find((player) => player.email === email);
     if (alreadyExists) {
       this.logger.log(`${email} already exists`);
     } else {
-      await this.create(createPlayerDto);
+      this.create(createPlayerDto);
     }
   }
 
   async findPlayers(email: string): Promise<Player[]> {
     if (email) {
-      const player = await this.players.find(
-        (_player) => _player.email === email,
-      );
+      const player = this.players.find((_player) => _player.email === email);
 
       if (player) {
         return [player];
       }
     }
-    return await this.players;
+    return this.players;
   }
 
   async updatePlayer(player: Player): Promise<void> {
-    await this.update(player);
+    this.update(player);
   }
 
   async deletePlayer(email: string): Promise<void> {
-    await this.delete(email);
+    this.delete(email);
   }
 
   private create(createPlayerDto: CreatePlayerDto): void {
