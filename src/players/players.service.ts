@@ -10,7 +10,16 @@ export class PlayersService {
   private readonly logger = new Logger(PlayersService.name);
 
   async createPlayer(createPlayerDto: CreatePlayerDto): Promise<void> {
-    await this.create(createPlayerDto);
+    const { email } = createPlayerDto;
+
+    const alreadyExists = await this.players.find(
+      (player) => player.email === email,
+    );
+    if (alreadyExists) {
+      this.logger.log(`${email} already exists`);
+    } else {
+      await this.create(createPlayerDto);
+    }
   }
 
   async findlAllPlayers(): Promise<Player[]> {
