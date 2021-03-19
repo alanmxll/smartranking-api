@@ -26,6 +26,10 @@ export class PlayersService {
     return await this.players;
   }
 
+  async updatePlayer(player: Player): Promise<void> {
+    await this.update(player);
+  }
+
   private create(createPlayerDto: CreatePlayerDto): void {
     const { name, phone, email } = createPlayerDto;
 
@@ -40,5 +44,22 @@ export class PlayersService {
     };
     this.logger.log(`createPlayerDto: ${JSON.stringify(player)}`);
     this.players.push(player);
+  }
+
+  private update(player: Player): void {
+    const pIndex = this.players.findIndex(
+      (_player) => _player._id === player._id,
+    );
+
+    if (pIndex !== null) {
+      this.players[pIndex].name = player.name;
+      this.players[pIndex].ranking = player.ranking;
+      this.players[pIndex].position = player.position;
+      this.players[pIndex].photo = player.photo;
+
+      this.logger.log(`update: ${JSON.stringify(this.players[pIndex])}`);
+    } else {
+      this.logger.log(`update: Failed! Player was not found`);
+    }
   }
 }

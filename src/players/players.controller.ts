@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post, Put } from '@nestjs/common';
 import { CreatePlayerDto } from './dto/create-player.dto';
 import { Player } from './interfaces/player.interface';
 import { PlayersService } from './players.service';
@@ -15,5 +15,10 @@ export class PlayersController {
   @Get()
   async findAllPlayers(): Promise<Player[]> {
     return this.playersService.findlAllPlayers();
+  }
+
+  @Put(':id')
+  async updatePlayer(@Body() player: Player) {
+    return this.playersService.updatePlayer(player);
   }
 }
