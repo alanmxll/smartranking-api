@@ -1,4 +1,9 @@
-import { Injectable, Logger } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
 import { CreatePlayerDto } from './dto/create-player.dto';
 import { Player } from './interfaces/player.interface';
@@ -39,6 +44,10 @@ export class PlayersService {
     await this.update(player);
   }
 
+  async deletePlayer(email: string): Promise<void> {
+    await this.delete(email);
+  }
+
   private create(createPlayerDto: CreatePlayerDto): void {
     const { name, phone, email } = createPlayerDto;
 
@@ -69,6 +78,22 @@ export class PlayersService {
       this.logger.log(`update: ${JSON.stringify(this.players[pIndex])}`);
     } else {
       this.logger.log(`update: Failed! Player was not found`);
+    }
+  }
+
+  private delete(email: string): void {
+    const player = this.players.find((_player) => _player.email === email);
+
+    if (player) {
+      this.players = this.players.filter(
+        (_player) => _player.email !== player.email,
+      );
+    } else if (email) {
+      this.logger.log('delete: Failed! Player was not found');
+      throw new NotFoundException(`Not found a player with email: ${email}`);
+    } else {
+      this.logger.log('delete: Failed! Missing parameter: email');
+      throw new BadRequestException(`Missing parameter: email`);
     }
   }
 }
