@@ -22,7 +22,16 @@ export class PlayersService {
     }
   }
 
-  async findlAllPlayers(): Promise<Player[]> {
+  async findPlayers(email: string): Promise<Player[]> {
+    if (email) {
+      const player = await this.players.find(
+        (_player) => _player.email === email,
+      );
+
+      if (player) {
+        return [player];
+      }
+    }
     return await this.players;
   }
 
