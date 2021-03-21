@@ -25,9 +25,9 @@ export class PlayersController {
     return this.playersService.findPlayers(email);
   }
 
-  @Put(':id')
-  async updatePlayer(@Body() player: Player) {
-    return this.playersService.updatePlayer(player);
+  @Put()
+  async updatePlayer(@Body() createPlayerDto: CreatePlayerDto): Promise<void> {
+    return this.playersService.updatePlayer(createPlayerDto);
   }
 
   @Delete()
