@@ -11,6 +11,7 @@ import {
 } from '@nestjs/common';
 import { CreatePlayerDto } from './dto/create-player.dto';
 import { Player } from './interfaces/player.interface';
+import { PlayersParamValidationPipe } from './pipes/players-param-validation.pipe';
 import { PlayersService } from './players.service';
 
 @Controller('api/v1/players')
@@ -34,7 +35,9 @@ export class PlayersController {
   }
 
   @Delete()
-  async deletePlayer(@Query('email') email: string): Promise<void> {
+  async deletePlayer(
+    @Query('email', PlayersParamValidationPipe) email: string,
+  ): Promise<void> {
     return this.playersService.deletePlayer(email);
   }
 }
