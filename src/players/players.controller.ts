@@ -3,9 +3,9 @@ import {
   Controller,
   Delete,
   Get,
+  Param,
   Post,
   Put,
-  Query,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
@@ -25,19 +25,29 @@ export class PlayersController {
   }
 
   @Get()
-  async findPlayers(@Query('email') email: string): Promise<Player[]> {
-    return this.playersService.findPlayers(email);
+  async findPlayers(): Promise<Player[]> {
+    return this.playersService.findPlayers();
   }
 
-  @Put()
-  async updatePlayer(@Body() createPlayerDto: CreatePlayerDto): Promise<void> {
-    return this.playersService.updatePlayer(createPlayerDto);
+  @Get('/:_id')
+  async findPlayerById(
+    @Param('_id', PlayersParamValidationPipe) _id: string,
+  ): Promise<Player> {
+    return this.playersService.findPlayerById(_id);
   }
 
-  @Delete()
-  async deletePlayer(
-    @Query('email', PlayersParamValidationPipe) email: string,
+  @Put('/:_id')
+  async updatePlayer(
+    @Param('_id', PlayersParamValidationPipe) _id: string,
+    @Body() createPlayerDto: CreatePlayerDto,
   ): Promise<void> {
-    return this.playersService.deletePlayer(email);
+    return this.playersService.updatePlayer(_id, createPlayerDto);
+  }
+
+  @Delete('/:_id')
+  async deletePlayer(
+    @Param('_id', PlayersParamValidationPipe) _id: string,
+  ): Promise<void> {
+    return this.playersService.deletePlayer(_id);
   }
 }
