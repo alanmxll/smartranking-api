@@ -6,6 +6,7 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CreateCategoryDto } from './dto/create-category.dto';
+import { UpdateCategoryDto } from './dto/update-category.dto';
 import { Category } from './interfaces/category.interface';
 
 @Injectable()
@@ -42,5 +43,22 @@ export class CategoriesService {
     }
 
     return categoryFound;
+  }
+
+  async updateCategory(
+    category: string,
+    updateCategoryDto: UpdateCategoryDto,
+  ): Promise<void> {
+    const categoryExists = await this.categoryModel
+      .findOne({ category })
+      .exec();
+
+    if (!categoryExists) {
+      throw new NotFoundException(`Category '${category}' not found`);
+    }
+
+    await this.categoryModel
+      .findOneAndUpdate({ category }, { $set: updateCategoryDto })
+      .exec();
   }
 }
