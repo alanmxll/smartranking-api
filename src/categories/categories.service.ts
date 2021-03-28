@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { PlayersService } from 'src/players/players.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { Category } from './interfaces/category.interface';
@@ -13,6 +14,7 @@ import { Category } from './interfaces/category.interface';
 export class CategoriesService {
   constructor(
     @InjectModel('Category') private readonly categoryModel: Model<Category>,
+    private readonly playersService: PlayersService,
   ) {}
 
   async createCategory(
@@ -59,6 +61,36 @@ export class CategoriesService {
 
     await this.categoryModel
       .findOneAndUpdate({ category }, { $set: updateCategoryDto })
+      .exec();
+  }
+
+  async assignPlayerToCategory(params: string[]): Promise<void> {
+    const category = params['category'];
+    const _idPlayer = params['_idPlayer'];
+
+    const categoryFound = await this.categoryModel.findOne({ category }).exec();
+    const playerAlreadyInCategory = await this.categoryModel
+      .find({ category })
+      .where('players')
+      .in(_idPlayer)
+      .exec();
+
+    await this.playersService.findPlayerById(_idPlayer);
+
+    if (!categoryFound) {
+      throw new BadRequestException(`Category '${category}' not registered.`);
+    }
+
+    if (playerAlreadyInCategory.length > 0) {
+      throw new BadRequestException(
+        `Player '${_idPlayer}' already in the category '${category}'`,
+      );
+    }
+
+    categoryFound.players.push(_idPlayer);
+
+    await this.categoryModel
+      .findOneAndUpdate({ category }, { $set: categoryFound })
       .exec();
   }
 }
