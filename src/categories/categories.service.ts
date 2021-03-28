@@ -32,7 +32,7 @@ export class CategoriesService {
   }
 
   async findCategories(): Promise<Category[]> {
-    return await this.categoryModel.find().exec();
+    return await this.categoryModel.find().populate('players').exec();
   }
 
   async findCategoryByName(category: string): Promise<Category> {
