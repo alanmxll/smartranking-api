@@ -25,4 +25,8 @@ export class CategoriesService {
 
     return await newCategory.save();
   }
+
+  async findCategories(): Promise<Category[]> {
+    return await this.categoryModel.find().exec();
+  }
 }
