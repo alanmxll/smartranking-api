@@ -1,13 +1,6 @@
 import { Document } from 'mongoose';
 import { Player } from 'src/players/interfaces/player.interface';
-
-export enum ChallengeStatus {
-  REALIZED = 'REALIZED',
-  PENDING = 'PENDING',
-  ACCEPTED = 'ACCEPTED',
-  DENIED = 'DENIED',
-  CANCEL = 'CANCEL',
-}
+import { ChallengeStatus } from './challenge-status-enum';
 
 export interface Challenge extends Document {
   challengeDate: Date;
