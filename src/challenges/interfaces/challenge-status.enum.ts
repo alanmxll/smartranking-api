@@ -3,5 +3,5 @@ export enum ChallengeStatus {
   PENDING = 'PENDING',
   ACCEPTED = 'ACCEPTED',
   DENIED = 'DENIED',
-  CANCEL = 'CANCEL',
+  CANCELLED = 'CANCELLED',
 }
