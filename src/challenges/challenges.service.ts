@@ -75,4 +75,32 @@ export class ChallengesService {
 
     return await challenge.save();
   }
+
+  async findChallenges(): Promise<Challenge[]> {
+    return await this.challengeModel
+      .find()
+      .populate('requester')
+      .populate('players')
+      .populate('game')
+      .exec();
+  }
+
+  async findPlayerChallenge(_id: any): Promise<Challenge[]> {
+    const players = await this.playersService.findPlayers();
+
+    const playerFiltered = players.filter((player) => player._id == _id);
+
+    if (playerFiltered.length === 0) {
+      throw new BadRequestException(`The id '${_id}' isn't a player.`);
+    }
+
+    return await this.challengeModel
+      .find()
+      .where('players')
+      .in(_id)
+      .populate('requester')
+      .populate('players')
+      .populate('game')
+      .exec();
+  }
 }
