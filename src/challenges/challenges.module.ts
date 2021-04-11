@@ -5,10 +5,14 @@ import { PlayersModule } from 'src/players/players.module';
 import { ChallengesController } from './challenges.controller';
 import { ChallengesService } from './challenges.service';
 import { ChallengeSchema } from './schemas/challenge.schema';
+import { GameSchema } from './schemas/game.schema';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: 'Challenge', schema: ChallengeSchema }]),
+    MongooseModule.forFeature([
+      { name: 'Challenge', schema: ChallengeSchema },
+      { name: 'Game', schema: GameSchema },
+    ]),
     PlayersModule,
     CategoriesModule,
   ],
