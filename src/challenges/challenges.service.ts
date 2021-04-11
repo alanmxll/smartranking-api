@@ -1,9 +1,14 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CategoriesService } from 'src/categories/categories.service';
 import { PlayersService } from 'src/players/players.service';
 import { CreateChallengeDto } from './dto/create-challenge.dto';
+import { UpdateChallengeDto } from './dto/update-challenge.dto';
 import { ChallengeStatus } from './interfaces/challenge-status.enum';
 import { Challenge } from './interfaces/challenge.interface';
 
@@ -101,6 +106,31 @@ export class ChallengesService {
       .populate('requester')
       .populate('players')
       .populate('game')
+      .exec();
+  }
+
+  async updateChallenge(
+    _id: string,
+    updateChallengeDto: UpdateChallengeDto,
+  ): Promise<void> {
+    const challenge = await this.challengeModel.findById(_id).exec();
+
+    if (!challenge) {
+      throw new NotFoundException(`Challenge '${_id}' not registered`);
+    }
+
+    /**
+     * Update the response date when the status come filled
+     */
+    if (updateChallengeDto.status) {
+      challenge.responseDate = new Date();
+    }
+
+    challenge.status = updateChallengeDto.status;
+    challenge.challengeDate = updateChallengeDto.challengeDate;
+
+    await this.challengeModel
+      .findOneAndUpdate({ _id }, { $set: challenge })
       .exec();
   }
 }
