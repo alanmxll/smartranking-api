@@ -198,6 +198,20 @@ export class ChallengesService {
       throw new InternalServerErrorException();
     }
   }
+
+  async deleteChallenge(_id: string): Promise<void> {
+    const challenge = await this.challengeModel.findById(_id).exec();
+
+    if (!challenge) {
+      throw new BadRequestException(`Challenge '${_id}' not registered`);
+    }
+
+    /**
+     * To do the logic deletion of challenge, we update the
+     * challenge status do CANCELLED
+     */
+    challenge.status = ChallengeStatus.CANCELLED;
+
     await this.challengeModel
       .findOneAndUpdate({ _id }, { $set: challenge })
       .exec();

@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Post,
@@ -56,5 +57,10 @@ export class ChallengesController {
       _id,
       assignChallengeGameDto,
     );
+  }
+
+  @Delete('/:_id')
+  async deleteChallenge(@Param('_id') _id: string): Promise<void> {
+    await this.challengesService.deleteChallenge(_id);
   }
 }
