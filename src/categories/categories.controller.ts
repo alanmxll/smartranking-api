@@ -5,6 +5,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
@@ -26,15 +27,21 @@ export class CategoriesController {
   }
 
   @Get()
-  async findCategories(): Promise<Category[]> {
-    return await this.categoriesService.findCategories();
-  }
+  async findCategories(
+    @Query() params: string[],
+  ): Promise<Category[] | Category> {
+    const idCategory = params['idCategory'];
+    const idPlayer = params['idPlayer'];
 
-  @Get('/:category')
-  async findCategoryByName(
-    @Param('category') category: string,
-  ): Promise<Category> {
-    return this.categoriesService.findCategoryByName(category);
+    if (idCategory) {
+      return await this.categoriesService.findCategoryById(idCategory);
+    }
+
+    if (idPlayer) {
+      return await this.categoriesService.findPlayerCategory(idPlayer);
+    }
+
+    return await this.categoriesService.findCategories();
   }
 
   @Put('/:category')
