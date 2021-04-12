@@ -10,6 +10,7 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { ChallengesService } from './challenges.service';
+import { AssignChallengeGameDto } from './dto/assign-challenge-game.dto';
 import { CreateChallengeDto } from './dto/create-challenge.dto';
 import { UpdateChallengeDto } from './dto/update-challenge.dto';
 import { Challenge } from './interfaces/challenge.interface';
@@ -43,6 +44,17 @@ export class ChallengesController {
     return await this.challengesService.updateChallenge(
       _id,
       updateChallengeDto,
+    );
+  }
+
+  @Post('/:challenge/game/')
+  async assignChallengeGame(
+    @Body(ValidationPipe) assignChallengeGameDto: AssignChallengeGameDto,
+    @Param('challenge') _id: string,
+  ): Promise<void> {
+    return await this.challengesService.assignChallengeGame(
+      _id,
+      assignChallengeGameDto,
     );
   }
 }

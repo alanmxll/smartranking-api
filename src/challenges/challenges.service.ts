@@ -1,21 +1,24 @@
 import {
   BadRequestException,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CategoriesService } from 'src/categories/categories.service';
 import { PlayersService } from 'src/players/players.service';
+import { AssignChallengeGameDto } from './dto/assign-challenge-game.dto';
 import { CreateChallengeDto } from './dto/create-challenge.dto';
 import { UpdateChallengeDto } from './dto/update-challenge.dto';
 import { ChallengeStatus } from './interfaces/challenge-status.enum';
-import { Challenge } from './interfaces/challenge.interface';
+import { Challenge, Game } from './interfaces/challenge.interface';
 
 @Injectable()
 export class ChallengesService {
   constructor(
     @InjectModel('Challenge') private readonly challengeModel: Model<Challenge>,
+    @InjectModel('Game') private readonly gameModel: Model<Game>,
     private readonly playersService: PlayersService,
     private readonly categoryService: CategoriesService,
   ) {}
@@ -129,6 +132,72 @@ export class ChallengesService {
     challenge.status = updateChallengeDto.status;
     challenge.challengeDate = updateChallengeDto.challengeDate;
 
+    await this.challengeModel
+      .findOneAndUpdate({ _id }, { $set: challenge })
+      .exec();
+  }
+
+  async assignChallengeGame(
+    _id: any,
+    assignChallengeGameDto: AssignChallengeGameDto,
+  ): Promise<void> {
+    const challenge = await this.challengeModel.findById(_id).exec();
+
+    if (!challenge) {
+      throw new BadRequestException(`Challenge '${_id}' not registered`);
+    }
+
+    /**
+     * Verify if the winner is in the challenge
+     */
+    const playerFiltered = challenge.players.filter(
+      (player) => player._id == assignChallengeGameDto.def,
+    );
+
+    if (playerFiltered.length == 0) {
+      throw new BadRequestException(`The player winner was not in challenge`);
+    }
+
+    /**
+     * First lets create and persist the game object
+     */
+    const game = new this.gameModel(assignChallengeGameDto);
+
+    /**
+     * Assign the object game to category recovered in challenge
+     */
+    game.category = challenge.category;
+
+    /**
+     * Assign the object game to players that was in the challenge
+     */
+    game.players = challenge.players;
+
+    const result = await game.save();
+
+    /**
+     * When one game was registered by a user, we change the
+     * challenge status to REALIZED
+     */
+    challenge.status = ChallengeStatus.REALIZED;
+
+    /**
+     * Recover the ID of game and assign to challenge
+     */
+    challenge.game = result._id;
+
+    try {
+      await this.challengeModel
+        .findOneAndUpdate({ _id }, { $set: challenge })
+        .exec();
+    } catch (error) {
+      /**
+       * If the challenge update fails, we exclude the game saved before
+       */
+      await this.gameModel.deleteOne({ _id: result._id }).exec();
+      throw new InternalServerErrorException();
+    }
+  }
     await this.challengeModel
       .findOneAndUpdate({ _id }, { $set: challenge })
       .exec();
