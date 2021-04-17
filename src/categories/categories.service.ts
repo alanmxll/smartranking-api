@@ -37,7 +37,7 @@ export class CategoriesService {
     return await this.categoryModel.find().populate('players').exec();
   }
 
-  async findCategoryByName(category: string): Promise<Category> {
+  async findCategoryById(category: string): Promise<Category> {
     const categoryFound = await this.categoryModel.findOne({ category }).exec();
 
     if (!categoryFound) {
@@ -45,6 +45,22 @@ export class CategoriesService {
     }
 
     return categoryFound;
+  }
+
+  async findPlayerCategory(_idPlayer: any): Promise<Category> {
+    const players = await this.playersService.findPlayers();
+
+    const playerFiltered = players.filter((player) => player._id == _idPlayer);
+
+    if (playerFiltered.length === 0) {
+      throw new BadRequestException(`The id ${_idPlayer} isn't a Player!`);
+    }
+
+    return await this.categoryModel
+      .findOne()
+      .where('players')
+      .in(_idPlayer)
+      .exec();
   }
 
   async updateCategory(
